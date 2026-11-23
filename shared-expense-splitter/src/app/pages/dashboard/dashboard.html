@@ -1,0 +1,18 @@
+<h1>Dashboard</h1>
+<div class="cards">
+  <div class="card">
+    <h3>Total Spent</h3>
+    <p>{{ service.total() | currency:'INR' }}</p>
+  </div>
+  <div class="card">
+    <h3>Expenses</h3>
+    <p>{{ service.expenses().length }}</p>
+  </div>
+  <div class="card">
+    <h3>Groups</h3>
+    <p>{{ service.groups().length }}</p>
+  </div>
+</div>
+
+<h2>Recent</h2>
+<app-expense-list [expenses]="recent()" [showDelete]="false" />

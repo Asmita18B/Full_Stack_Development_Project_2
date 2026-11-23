@@ -1,0 +1,10 @@
+<h1>Balances</h1>
+@for (b of service.balances(); track b.name) {
+  <div class="row" [class.positive]="b.balance >= 0" [class.negative]="b.balance < 0">
+    <span>{{ b.name }}</span>
+    <span>
+      {{ b.balance >= 0 ? 'gets back' : 'owes' }}
+      {{ (b.balance < 0 ? -b.balance : b.balance) | currency:'INR' }}
+    </span>
+  </div>
+}

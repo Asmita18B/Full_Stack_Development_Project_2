@@ -1,0 +1,12 @@
+<h1>Groups</h1>
+<div class="add">
+  <input [(ngModel)]="newGroup" placeholder="New group name" />
+  <button (click)="add()">Add Group</button>
+</div>
+
+@for (g of service.groups(); track g) {
+  <div class="group">
+    <strong>{{ g }}</strong>
+    <span>{{ count(g) }} expenses</span>
+  </div>
+}

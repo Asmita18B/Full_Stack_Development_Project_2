@@ -1,0 +1,17 @@
+@if (expenses().length === 0) {
+  <p class="empty">No expenses yet.</p>
+}
+<ul>
+  @for (e of expenses(); track e.id) {
+    <li>
+      <div>
+        <strong>{{ e.description }}</strong>
+        <small>{{ e.paidBy }} paid · {{ e.group }}</small>
+      </div>
+      <span class="amount">{{ e.amount | currency:'INR' }}</span>
+      @if (showDelete()) {
+        <button (click)="remove.emit(e.id)">✕</button>
+      }
+    </li>
+  }
+</ul>

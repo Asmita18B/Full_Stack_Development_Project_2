@@ -1,0 +1,3 @@
+.row { display: flex; justify-content: space-between; padding: 14px 16px; border-radius: 10px; margin-bottom: 8px; background: white; }
+.positive { border-left: 6px solid #22c55e; }
+.negative { border-left: 6px solid #ef4444; }

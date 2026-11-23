@@ -1,0 +1,81 @@
+<div class="layout">
+  <app-sidebar />
+
+  <main class="content">
+    <!-- ONE-WAY: code -> screen -->
+    <header class="top">
+      <h1>{{ title }}</h1>
+      <button (click)="toggleTools()" [attr.aria-expanded]="showTools()">
+        {{ showTools() ? 'Hide' : 'Show' }} quick tools
+      </button>
+    </header>
+
+    <section class="cards">
+      <div class="card"><h3>Total spent</h3><p>{{ svc.total() | currency:'INR' }}</p></div>
+      <div class="card"><h3>Expenses</h3><p>{{ expenseCount() }}</p></div>
+      <div class="card"><h3>Groups</h3><p>{{ groupCount() }}</p></div>
+      <div class="card"><h3>Per person</h3><p>{{ perPerson() | currency:'INR' }}</p></div>
+    </section>
+
+    <!-- TWO-WAY: spending limit -->
+    <section class="panel">
+      <label>Spending limit <input type="number" min="0" [(ngModel)]="spendLimit" /></label>
+      <div class="bar" [class.over]="overLimit()">
+        <span [style.width.%]="usedPercent()"></span>
+      </div>
+      <small [class.error]="overLimit()">
+        {{ usedPercent() }}% used.
+        @if (overLimit()) { Over by {{ -remaining() | currency:'INR' }}. }
+        @else { {{ remaining() | currency:'INR' }} left. }
+      </small>
+    </section>
+
+    @if (showTools()) {
+      <section class="panel">
+        <h2>Quick add expense</h2>
+        <!-- inputs = one-way, (added) = event from the child -->
+        <app-expense-form
+          [members]="svc.members"
+          [groups]="svc.groups()"
+          (added)="addExpense($event)" />
+      </section>
+
+      <section class="panel">
+        <h2>Search expenses</h2>
+        <div class="row">
+          <input placeholder="Description, person or group" [(ngModel)]="search" />
+          <button (click)="clearSearch()">Clear</button>
+        </div>
+        <app-expense-list [expenses]="filtered()" (remove)="removeExpense($event)" />
+      </section>
+
+      <section class="panel">
+        <h2>Add group</h2>
+        <div class="row">
+          <input placeholder="New group name" [(ngModel)]="newGroup" />
+          <button (click)="addGroup()" [disabled]="!newGroup().trim()">Add</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Person balance</h2>
+        <div class="row">
+          <select [(ngModel)]="selectedPerson">
+            @for (m of svc.members; track m) {
+              <option [value]="m">{{ m }}</option>
+            }
+          </select>
+          <strong [class.pos]="personNet() >= 0" [class.neg]="personNet() < 0">
+            {{ personNet() >= 0 ? 'gets back' : 'owes' }}
+            {{ (personNet() < 0 ? -personNet() : personNet()) | currency:'INR' }}
+          </strong>
+        </div>
+      </section>
+    }
+
+    <!-- Current page from app.routes.ts -->
+    <router-outlet />
+
+    <footer>&copy; {{ year }} {{ title }}</footer>
+  </main>
+</div>

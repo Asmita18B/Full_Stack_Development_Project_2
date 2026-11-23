@@ -1,0 +1,8 @@
+<h1>Expenses</h1>
+<app-expense-form
+  [members]="service.members"
+  [groups]="service.groups()"
+  (added)="add($event)" />
+<app-expense-list
+  [expenses]="service.expenses()"
+  (remove)="service.deleteExpense($event)" />

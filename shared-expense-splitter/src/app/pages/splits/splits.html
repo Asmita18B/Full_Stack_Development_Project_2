@@ -1,0 +1,137 @@
+<h1>Split Details</h1>
+
+<!-- SECTION 1: every expense split individually -->
+<h2>1. Every expense, split individually</h2>
+
+@if (service.expenses().length === 0) {
+  <p class="empty">No expenses yet. Add one on the Expenses page.</p>
+}
+
+@for (e of service.expenses(); track e.id) {
+  <section class="card">
+    <header>
+      <div>
+        <strong>{{ e.description }}</strong>
+        <small>{{ e.group }} - paid by {{ e.paidBy }}</small>
+      </div>
+      <span class="total">{{ e.amount | currency:'INR' }}</span>
+    </header>
+
+    <p class="formula">
+      {{ e.amount | currency:'INR' }} divided by {{ service.members.length }} people
+      = {{ (e.amount / service.members.length) | currency:'INR' }} each
+    </p>
+
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Person</th>
+            <th>Paid</th>
+            <th>Fair share</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of service.splitOf(e); track r.name) {
+            <tr>
+              <td>{{ r.name }}</td>
+              <td>{{ r.paid | currency:'INR' }}</td>
+              <td>{{ r.share | currency:'INR' }}</td>
+              <td [class.positive]="r.net >= 0" [class.negative]="r.net < 0">
+                @if (r.net >= 0) {
+                  gets back {{ r.net | currency:'INR' }}
+                } @else {
+                  owes {{ -r.net | currency:'INR' }}
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
+
+<!-- SECTION 2: one person's ledger -->
+<h2>2. Person-wise ledger</h2>
+
+<div class="picker">
+  <label for="person">Show calculations for:</label>
+  <select id="person" [ngModel]="selected()" (ngModelChange)="selected.set($event)">
+    @for (m of service.members; track m) {
+      <option [value]="m">{{ m }}</option>
+    }
+  </select>
+</div>
+
+<div class="card">
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Expense</th>
+          <th>Group</th>
+          <th>Paid by</th>
+          <th>Total</th>
+          <th>{{ selected() }} paid</th>
+          <th>{{ selected() }}'s share</th>
+          <th>Difference</th>
+          <th>Running balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of ledger(); track r.id) {
+          <tr>
+            <td>{{ r.description }}</td>
+            <td>{{ r.group }}</td>
+            <td>{{ r.paidBy }}</td>
+            <td>{{ r.amount | currency:'INR' }}</td>
+            <td>{{ r.paid | currency:'INR' }}</td>
+            <td>{{ r.share | currency:'INR' }}</td>
+            <td [class.positive]="r.net >= 0" [class.negative]="r.net < 0">
+              {{ r.net | currency:'INR' }}
+            </td>
+            <td [class.positive]="r.running >= 0" [class.negative]="r.running < 0">
+              {{ r.running | currency:'INR' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4">Totals</td>
+          <td>{{ totals().paid | currency:'INR' }}</td>
+          <td>{{ totals().share | currency:'INR' }}</td>
+          <td [class.positive]="totals().net >= 0" [class.negative]="totals().net < 0">
+            {{ totals().net | currency:'INR' }}
+          </td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <p class="summary" [class.positive]="totals().net >= 0" [class.negative]="totals().net < 0">
+    @if (totals().net >= 0) {
+      {{ selected() }} should get back {{ totals().net | currency:'INR' }} in total.
+    } @else {
+      {{ selected() }} owes {{ -totals().net | currency:'INR' }} in total.
+    }
+  </p>
+</div>
+
+<!-- SECTION 3: settlements -->
+<h2>3. Who pays whom</h2>
+
+<div class="card">
+  @if (service.settlements().length === 0) {
+    <p class="empty">Everyone is settled up.</p>
+  }
+  @for (s of service.settlements(); track s.from + s.to) {
+    <div class="settle">
+      <span><strong>{{ s.from }}</strong> pays <strong>{{ s.to }}</strong></span>
+      <span class="total">{{ s.amount | currency:'INR' }}</span>
+    </div>
+  }
+</div>
